@@ -28,7 +28,7 @@ setup(
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
         "Operating System :: OS Independent",
-        "Development Status :: 3 - Alpha",
+        "Development Status :: 4 - Beta",
     ],
     python_requires='>=3.6',
     install_requires=["pymodbus"],

@@ -4,6 +4,17 @@
 
 Read status information from a SonnenCharger type wallbox
 
+## Installation
+
+### Using `pip``
+
+``` bash
+pip3 install sonnencharger
+```
+
+### Manual installation
+[Download the archive from pypi.org](https://pypi.org/project/sonnencharger/#files) and unpack where needed ;)
+
 ## Usage
 
 ``` python
