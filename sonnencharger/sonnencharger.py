@@ -71,7 +71,7 @@ class sonnencharger:
   def _decode_uint8(self, offset):
     try:
       rsp = self._sc_conn.read_input_registers(address=offset, count=1)
-      dec = BinaryPayloadDecoder.fromRegisters(rsp.registers, byteorder=Endian.Big)
+      dec = BinaryPayloadDecoder.fromRegisters(rsp.registers, byteorder=Endian.BIG)
       return dec.decode_16bit_uint()
     except:
       e = traceback.format_exc()
@@ -81,7 +81,7 @@ class sonnencharger:
   def _decode_uint16(self, offset):
     try:
       rsp = self._sc_conn.read_input_registers(address=offset, count=2)
-      dec = BinaryPayloadDecoder.fromRegisters(rsp.registers, byteorder=Endian.Big)
+      dec = BinaryPayloadDecoder.fromRegisters(rsp.registers, byteorder=Endian.BIG)
       return dec.decode_16bit_uint()
     except:
       e = traceback.format_exc()
@@ -91,7 +91,7 @@ class sonnencharger:
   def _decode_uint64(self, offset):
     try:
       rsp = self._sc_conn.read_input_registers(address=offset, count=4)
-      dec = BinaryPayloadDecoder.fromRegisters(rsp.registers, byteorder=Endian.Big)
+      dec = BinaryPayloadDecoder.fromRegisters(rsp.registers, byteorder=Endian.BIG)
       return dec.decode_64bit_uint()
     except:
       e = traceback.format_exc()
@@ -101,7 +101,7 @@ class sonnencharger:
   def _decode_float32(self, offset):
     try:
       rsp = self._sc_conn.read_input_registers(address=offset, count=2)
-      dec = BinaryPayloadDecoder.fromRegisters(rsp.registers, byteorder=Endian.Big, wordorder=Endian.Big)
+      dec = BinaryPayloadDecoder.fromRegisters(rsp.registers, byteorder=Endian.BIG, wordorder=Endian.BIG)
       return dec.decode_32bit_float()
     except:
       e = traceback.format_exc()

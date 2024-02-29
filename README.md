@@ -6,7 +6,7 @@ Read status information from a SonnenCharger type wallbox
 
 ## Installation
 
-### Using `pip``
+### Using `pip`
 
 ``` bash
 pip3 install sonnencharger

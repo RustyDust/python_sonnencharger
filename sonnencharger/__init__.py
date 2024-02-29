@@ -1,3 +1,3 @@
 from .sonnencharger import sonnencharger
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'
