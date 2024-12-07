@@ -1,13 +1,16 @@
 import logging
 import traceback
 
+import pymodbus.client as ModbusClient
+
 try:
-  from pymodbus.client.tcp import ModbusTcpClient
+  from pymodbus import (
+    FramerType,
+    ModbusException,
+    pymodbus_apply_logging_config,
+  )
 except:
   from pymodbus.client.sync import ModbusTcpClient
-
-from pymodbus.constants import Endian
-from pymodbus.payload import BinaryPayloadDecoder
 
 LOGGER = logging.getLogger(__package__)
 
@@ -53,62 +56,64 @@ ADDR_CONN_MAX_CURR      = 1028
 
 class sonnencharger:
   def __init__(self, ipaddress, port=502) -> None:
+    pymodbus_apply_logging_config("ERROR")
     self._sc_host = ipaddress
     self._sc_port = port
-    self._sc_conn = ModbusTcpClient(host=self._sc_host, port=self._sc_port)
+    self._sc_conn = ModbusClient.ModbusTcpClient(
+      host=self._sc_host,
+      port=self._sc_port,
+      framer=FramerType.SOCKET,
+    )
+    self._sc_conn.connect()
     self.system_data = {}
 
   def _decode_string(self, offset, length):
     try:
       rsp = self._sc_conn.read_input_registers(address=offset, count=length)
-      dec = BinaryPayloadDecoder.fromRegisters(rsp.registers)
-      return dec.decode_string(length * 2).decode("utf-8").rstrip('\x00')
-    except:
+      return self._sc_conn.convert_from_registers(rsp.registers, self._sc_conn.DATATYPE.STRING).rstrip('\x00')
+    except ModbusException as exc:
       e = traceback.format_exc()
-      LOGGER.error("Unable to read charger value.\n"+ e)
+      LOGGER.error(f"Unable to read charger value. [{exc}]\n{e}")
       return ""
 
   def _decode_uint8(self, offset):
     try:
       rsp = self._sc_conn.read_input_registers(address=offset, count=1)
-      dec = BinaryPayloadDecoder.fromRegisters(rsp.registers, byteorder=Endian.BIG)
-      return dec.decode_16bit_uint()
-    except:
+      return self._sc_conn.convert_from_registers(rsp.registers, self._sc_conn.DATATYPE.UINT16)
+    except ModbusException as exc:
       e = traceback.format_exc()
-      LOGGER.error("Unable to read charger value.\n"+ e)
+      LOGGER.error(f"Unable to read charger value. [{exc}]\n{e}")
       return False
 
   def _decode_uint16(self, offset):
     try:
       rsp = self._sc_conn.read_input_registers(address=offset, count=2)
-      dec = BinaryPayloadDecoder.fromRegisters(rsp.registers, byteorder=Endian.BIG)
-      return dec.decode_16bit_uint()
-    except:
+      return self._sc_conn.convert_from_registers(rsp.registers, self._sc_conn.DATATYPE.UINT32)
+    except ModbusException as exc:
       e = traceback.format_exc()
-      LOGGER.error("Unable to read charger value.\n"+ e)
+      LOGGER.error(f"Unable to read charger value. [{exc}]\n{e}")
       return False
 
   def _decode_uint64(self, offset):
     try:
       rsp = self._sc_conn.read_input_registers(address=offset, count=4)
-      dec = BinaryPayloadDecoder.fromRegisters(rsp.registers, byteorder=Endian.BIG)
-      return dec.decode_64bit_uint()
-    except:
+      return self._sc_conn.convert_from_registers(rsp.registers, self._sc_conn.DATATYPE.UINT64)
+    except ModbusException as exc:
       e = traceback.format_exc()
-      LOGGER.error("Unable to read charger value.\n"+ e)
+      LOGGER.error(f"Unable to read charger value. [{exc}]\n{e}")
       return False
 
   def _decode_float32(self, offset):
     try:
       rsp = self._sc_conn.read_input_registers(address=offset, count=2)
-      dec = BinaryPayloadDecoder.fromRegisters(rsp.registers, byteorder=Endian.BIG, wordorder=Endian.BIG)
-      return dec.decode_32bit_float()
-    except:
+      return self._sc_conn.convert_from_registers(rsp.registers, self._sc_conn.DATATYPE.FLOAT32)
+    except ModbusException as exc:
       e = traceback.format_exc()
-      LOGGER.error("Unable to read charger value.\n"+ e)
+      LOGGER.error(f"Unable to read charger value. [{exc}]\n{e}")
       return False
 
   def _collect_sysinfo(self):
+    self._sc_conn.connect()
     # Serial Number
     serial = self._decode_string(ADDR_SC_SERIALNO, 10)
     self.system_data['serial'] = serial
@@ -126,7 +131,7 @@ class sonnencharger:
     self.system_data['swrevision'] = swrev
 
     # no# of connectors
-    conns = self._decode_uint16(ADDR_SC_NUMCONN)
+    conns = self._decode_uint8(ADDR_SC_NUMCONN)
     self.system_data['connectors'] = conns
 
   def _collect_connector_info(self):
