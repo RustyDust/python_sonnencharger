@@ -55,7 +55,7 @@ class sonnencharger:
   def __init__(self, ipaddress, port=502) -> None:
     self._sc_host = ipaddress
     self._sc_port = port
-    self._sc_conn = ModbusTcpClient(self._sc_host, self._sc_port)
+    self._sc_conn = ModbusTcpClient(host=self._sc_host, port=self._sc_port)
     self.system_data = {}
 
   def _decode_string(self, offset, length):
