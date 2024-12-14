@@ -3,14 +3,11 @@ import traceback
 
 import pymodbus.client as ModbusClient
 
-try:
-  from pymodbus import (
+from pymodbus import (
     FramerType,
     ModbusException,
     pymodbus_apply_logging_config,
-  )
-except:
-  from pymodbus.client.sync import ModbusTcpClient
+)
 
 LOGGER = logging.getLogger(__package__)
 
